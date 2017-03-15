@@ -47,10 +47,19 @@ module Pod
         end
         options[:subspecs] = subspecs if subspecs
         Pod::Podfile.new do
+          use_frameworks!
           sources.each { |s| source s }
           platform(platform_name, deployment_target)
           pod(spec_name, options)
 
+          post_install do |installer|
+            installer.pods_project.targets.each do |target|
+                target.build_configurations.each do |config|
+                    config.build_settings['SWIFT_VERSION'] = '3.0'
+                end
+            end
+          end
+            
           install!('cocoapods',
                    :integrate_targets => false,
                    :deterministic_uuids => false)
